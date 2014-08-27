@@ -49,26 +49,26 @@ function stylus_preprocess_page(&$variables) {
       $compile = array();
 
       // Iterate through all media types
-      foreach($stylus_stylesheets as $stylesheets) {
-        
+      foreach ($stylus_stylesheets as $stylesheets) {
+
         // Prepends the themes path and adds new path to compile list
         array_walk($stylesheets, function(&$path) use ($theme_path, &$compile) {
           if (!empty($path)) {
-            $compile[] = $theme_path . '/' . $path; 
+            $compile[] = $theme_path . '/' . $path;
           }
         });
       }
-      
+
       // Compile stylesheets
       $success = stylus_compile($compile, $css_dir);
     }
 
     // Iterate through media types
-    foreach($stylus_stylesheets as $media => $stylesheets) { 
+    foreach ($stylus_stylesheets as $media => $stylesheets) {
 
       // Add all compiled stylesheets
-      foreach($stylesheets as $stylesheet) {
-        
+      foreach ($stylesheets as $stylesheet) {
+
         // Set the css path either to settings defined directory or the same directory as the stylus file
         $path = $css_dir ? $css_dir : $theme_path . '/' . dirname($stylesheet);
 
@@ -103,7 +103,7 @@ function stylus_css_path($path) {
 }
 
 function stylus_compile($stylesheets, $output_dir = NULL) {
-  
+
   // Absolute filesystem path
   $fs_path = $_SERVER['DOCUMENT_ROOT'] . base_path();
 
@@ -133,7 +133,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
 
     $file_paths = array();
     $force = variable_get('stylus_force', FALSE);
-    
+
     // Iterate through stylesheets
     foreach ($stylesheets as $stylus_stylesheet) {
 
@@ -142,7 +142,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
         $output_dir = dirname($stylus_stylesheet);
       }
 
-      $css_stylesheet = $fs_path . $output_dir . '/' . stylus_css_path($stylus_stylesheet); 
+      $css_stylesheet = $fs_path . $output_dir . '/' . stylus_css_path($stylus_stylesheet);
 
       // Do we have a css file or has the stylus file been modified after last compile
       // Force setting also applies here.
@@ -153,7 +153,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
 
     // Are there any files to be compiled
     if (count($file_paths) > 0) {
-      
+
       // Stylus response
       $response = array();
 
@@ -175,7 +175,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
           watchdog('Stylus', $line, array(), WATCHDOG_ERROR);
           $response = array();
         }
-        
+
         // Success
         $line = preg_replace("/^[^9]*90mcompiled[^0]*0m/", t('Stylus compiled: '), $line);
       });
