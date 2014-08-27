@@ -113,21 +113,6 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
   $stylus_binary = (!empty($stylus_settings['path'])) ? $stylus_settings['path'] : 'stylus';
   $stylus_nib = (!empty($stylus_settings['nib'])) ? $stylus_settings['nib'] : '';
 
-  // If a CSS path is used check if it's writable
-  if (!empty($output_dir)) {
-    $is_writable = is_writable($output_dir);
-
-    // The path is not writeable, exit.
-    if (!$is_writable) {
-      $message = t('The CSS directory, %path, defined for stylus module does not exist or is not writeable.', array('%path' => $fs_path . $output_dir));
-      if (user_access(STYLUS_PERMISSION)) {
-        drupal_set_message($message, 'error');
-      }
-      watchdog('Stylus', $message, array(), WATCHDOG_ERROR);
-      return FALSE;
-    }
-  }
-
   // Checking if we have any stylesheets and if stylus is available
   if (count($stylesheets) > 0 && strlen(exec(escapeshellcmd($stylus_binary . ' -V'))) > 0) {
 
@@ -151,6 +136,26 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
       }
     }
 
+    // If thehe path is not writable, exit.
+    if (!file_exists($output_dir) || !is_dir($output_dir)) {
+      $message = t('The CSS directory %path does not exist.', array('%path' => $fs_path . $output_dir));
+      if (user_access(STYLUS_PERMISSION)) {
+        drupal_set_message("Stylus error: $message", 'error');
+      }
+      watchdog('Stylus', $message, array(), WATCHDOG_ERROR);
+      return FALSE;
+    }
+
+    // If the path is not writable, exit.
+    if (!is_writable($output_dir)) {
+      $message = t('The CSS directory %path is not writable.', array('%path' => $fs_path . $output_dir));
+      if (user_access(STYLUS_PERMISSION)) {
+        drupal_set_message("Stylus error: $message", 'error');
+      }
+      watchdog('Stylus', $message, array(), WATCHDOG_ERROR);
+      return FALSE;
+    }
+
     // Are there any files to be compiled
     if (count($file_paths) > 0) {
 
@@ -160,7 +165,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
       // Nib module
       $stylus_nib = !empty($stylus_nib) ? ' --use ' . trim($stylus_nib) : '';
 
-      $output = ($output_dir && $is_writable) ? ' --out ' . $fs_path . $output_dir : '';
+      $output = ($output_dir && is_writable($output_dir)) ? ' --out ' . $fs_path . $output_dir : '';
 
       // Generate CSS stylesheet
       exec(escapeshellcmd($stylus_binary . ' ' . implode($file_paths, " ") . $stylus_nib . $output) . ' 2>&1', $response);
