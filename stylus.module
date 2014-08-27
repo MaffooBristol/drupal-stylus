@@ -136,7 +136,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
       }
     }
 
-    // If thehe path is not writable, exit.
+    // Exit if the path does not exist.
     if (!file_exists($output_dir) || !is_dir($output_dir)) {
       $message = t('The CSS directory %path does not exist.', array('%path' => $fs_path . $output_dir));
       if (user_access(STYLUS_PERMISSION)) {
@@ -146,7 +146,7 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
       return FALSE;
     }
 
-    // If the path is not writable, exit.
+    // Exit if the path is not writable.
     if (!is_writable($output_dir)) {
       $message = t('The CSS directory %path is not writable.', array('%path' => $fs_path . $output_dir));
       if (user_access(STYLUS_PERMISSION)) {
