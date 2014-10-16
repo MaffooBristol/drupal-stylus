@@ -193,3 +193,33 @@ function stylus_compile($stylesheets, $output_dir = NULL) {
 
   return TRUE;
 }
+
+
+function stylus_css_alter(&$css) {
+
+  $development = variable_get('stylus_devel', FALSE);
+  $force = variable_get('stylus_force', FALSE);
+
+  // Bypass if not in development or force modes.
+  if (!$development && !$force) {
+    return;
+  }
+
+  $stylesheets = array();
+
+  foreach ($css as $key => &$item) {
+    if (substr($key, -5) === '.styl') {
+      $stylesheets[] = $item['data'];
+      $item['weight'] = -999;
+      $item['syntax'] = 'styl';
+      $item['data'] = str_replace('.styl', '.css', $item['data']);
+    }
+  }
+
+  if (empty($stylesheets)) {
+    return;
+  }
+
+  stylus_compile($stylesheets);
+
+}
